@@ -25,22 +25,6 @@ class RGB(Color):
 colorInit = [RGB('grey')]*4
 indexToChange = 0
 
-class Game():
-
-    def __init__(self, difficulty = 2):
-        self.difficulty = difficulty
-        self.solution = random.sample(colors,4)
-        self.guesses = 0
-        self.right_places = 0
-
-    def play(self):
-        while self.guesses <= 10 and self.right_places != 4:
-            player_input = random.sample(colors,4) 
-            guess = Guess(player_input) 
-            print('Guess number',self.guesses,':',guess.guess)
-            self.right_places = guess.compare(self)[0]
-        print(self.solution)
-
 class Guess():
     
     def __init__(self, guess):
@@ -96,14 +80,13 @@ class Game():
         for i, val in enumerate(self.line):
             length = 300
             rect = pygame.Surface((length,40))
-            #rect.fill(red)
             pygame.draw.rect(rect, gray, rect.get_rect(), border_radius = 25)
 
             for y, valArray in enumerate(val):
                 circle = pygame.Surface((30,30))
                 circle.fill(gray)
                 pygame.draw.circle(circle, valArray, (circle.get_width()/2,circle.get_height()/2), 15)
-                rect.blit(circle, (10+(50*y),5))
+                rect.blit(circle, (60+(50*y),5))
             
             window.blit(rect, (50, (50*i)+130))
         
@@ -113,7 +96,7 @@ class Game():
 
     def validate(self):
         if self.linePlayer != [RGB('grey')]*4:
-            self.line[self.linePlayerPosition] = self.linePlayer
+            self.line[(len(self.line)-1) - self.linePlayerPosition] = self.linePlayer
             self.linePlayer = [RGB('grey')]*4
             self.linePlayerPosition += 1
             self.elementPlayerPosition = 0
@@ -121,9 +104,7 @@ class Game():
 def main():
     gameExit = False
     game = Game()
-    
         
-
     # Create button validation
     smallfont = pygame.font.SysFont('Corbel',35)
     text = smallfont.render('Validé' , True , RGB('white'))
@@ -165,7 +146,7 @@ def main():
         clock.tick(10)
 
 def menu(surface):
-    draw_text('MASTERMIND', TITLE_FONT, (255, 255, 255), surface, (WIDTH/4)+50, 60)
+    draw_text('MASTERMIND', TITLE_FONT, (255, 255, 255), surface, (WIDTH/4)+50, 20)
         
 def game(surface):
     solution = random.sample(colors,4)
