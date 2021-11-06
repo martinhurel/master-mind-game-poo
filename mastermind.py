@@ -18,6 +18,10 @@ window = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption('Mastermind') # Window name
 window.fill((0, 9, 30))
 
+class RGB(Color):
+    def hex_format(self):
+        return '#{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue)
+
 def main():
     gameExit = False
     while not gameExit:
@@ -48,7 +52,20 @@ def main():
 
         choices = pygame.Surface((300,300))
         choices.fill(white)
+
+
+        # Choices bubble
+        pos = 10
+        for color in COLORS:
+            circle = pygame.Surface((30,30))
+            circle.fill(white)
+            pygame.draw.circle(circle, RGB(color), (circle.get_width()/2,circle.get_height()/2), 15)
+            choices.blit(circle, (pos, 10))
+            pos += 50
         window.blit(choices, (450, 200))
+        
+
+
 
         
 
