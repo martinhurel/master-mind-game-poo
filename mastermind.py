@@ -39,7 +39,7 @@ class Game():
         # Create all the 10 line
         self.line = [[RGB('red')]*4]*10
 
-        self.answerClue = [[RGB('blue')]*4]*10
+        self.answerClue = [[RGB('white')]*4]*10
 
         # Create the line wich the player will modify
         self.linePlayer = [RGB('grey')]*4
@@ -91,16 +91,9 @@ class Game():
 
                 for y, valArray in enumerate(val):
                     # Answer Space
-                    circle = pygame.Surface((30,30))
-                    circle.fill(RGB('grey'))
-                    pygame.draw.circle(circle, valArray, (circle.get_width()/2,circle.get_height()/2), 15)
-                    rect.blit(circle, (60+(50*y),5))
-
+                    self.createCircle(rect, valArray, 'grey', 30, 30, 60+(50*y),5)
                     # Clue Space
-                    circle = pygame.Surface((30,30))
-                    circle.fill(RGB('white'))
-                    pygame.draw.circle(circle, self.answerClue[len(self.answerClue) - (i+1)][y], (circle.get_width()/2,circle.get_height()/2), 15)
-                    rectAnswer.blit(circle, (60+(50*y),5))
+                    self.createCircle(rectAnswer, self.answerClue[len(self.answerClue) - (i+1)][y], 'white', 30, 30, 60+(50*y),5)
                 
                 window.blit(rect, (50, (50*i)+130))
                 window.blit(rectAnswer, (length + 70, (50*i)+130))
@@ -108,6 +101,13 @@ class Game():
             playing_rect = pygame.Surface((length,47))
             playing_rect.fill(RGB('white'))
             window.blit(playing_rect, (50, (50*11)+130))
+
+    def createCircle(self, container, color, fillColor, width, height, x, y):
+        circle = pygame.Surface((width,height))
+        circle.fill(RGB(fillColor))
+        pygame.draw.circle(circle, color, (circle.get_width()/2,circle.get_height()/2), 15)
+        container.blit(circle, (x,y))
+
 
     def validate(self):
         if self.linePlayer != [RGB('grey')]*4:
@@ -183,6 +183,5 @@ def main():
             pygame.display.update()
             clock = pygame.time.Clock()
             clock.tick(10)
-        else:
 
 main()
