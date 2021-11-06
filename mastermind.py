@@ -81,7 +81,6 @@ class Game():
         self.linePlayerPosition = 0
 
     def changeLinePlayer(self, color):
-        print('icic')
         if self.elementPlayerPosition < 4:
             self.linePlayer[self.elementPlayerPosition] = RGB(color)
             self.createColor()
@@ -112,18 +111,12 @@ class Game():
         playing_rect.fill(gray)
         window.blit(playing_rect, (50, (50*11)+130))
 
-    def changeLinePlayer(self,color):
-        if self.elementPlayerPosition < 4:
-            self.linePlayer[self.elementPlayerPosition] = RGB(color)
-            self.createColor()
-            self.elementPlayerPosition += 1
-
     def validate(self):
         if self.linePlayer != [RGB('grey')]*4:
             self.line[self.linePlayerPosition] = self.linePlayer
             self.linePlayer = [RGB('grey')]*4
-            self.linePlayerPosition += 1   
-
+            self.linePlayerPosition += 1
+            self.elementPlayerPosition = 0
 
 def main():
     gameExit = False
