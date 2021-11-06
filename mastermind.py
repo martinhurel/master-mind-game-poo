@@ -68,13 +68,21 @@ class RGB(Color):
 
 class Game():
     def __init__(self):
+        # Create all the 10 line
         self.line = [[RGB('red')]*4]*10
+
+        # Create the line wich the player will modify
         self.linePlayer = [RGB('grey')]*4
+
+        # Element in linePlayer that the player will modify
         self.elementPlayerPosition = 0
+
+        # Line number that has been validate
         self.linePlayerPosition = 0
 
     def changeLinePlayer(self, color):
-        if self.position < 4:
+        print('icic')
+        if self.elementPlayerPosition < 4:
             self.linePlayer[self.elementPlayerPosition] = RGB(color)
             self.createColor()
             self.elementPlayerPosition += 1
@@ -105,8 +113,6 @@ class Game():
         window.blit(playing_rect, (50, (50*11)+130))
 
     def changeLinePlayer(self,color):
-
-        print('LAaaAAAAA', color)
         if self.elementPlayerPosition < 4:
             self.linePlayer[self.elementPlayerPosition] = RGB(color)
             self.createColor()
@@ -116,7 +122,7 @@ class Game():
         if self.linePlayer != [RGB('grey')]*4:
             self.line[self.linePlayerPosition] = self.linePlayer
             self.linePlayer = [RGB('grey')]*4
-            self.line += 1   
+            self.linePlayerPosition += 1   
 
 
 def main():
@@ -155,12 +161,10 @@ def main():
                 matching_round_y = (position[1] - 20 <= mouse_pos[1] <= position[1] + 20)
                 if matching_round_x & matching_round_y:
                     index = choices_pos.index(position)
-                    print('here', COLORS[index])
                     game.changeLinePlayer(COLORS[index])
                 matching_text_x = (600 <= mouse_pos[0] <= 650)
                 matching_text_y = (600 <= mouse_pos[1] <= 630)
                 if matching_text_x & matching_text_y:
-                    print('here')
                     game.validate()
                     
         pygame.display.update()
