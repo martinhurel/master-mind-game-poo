@@ -16,10 +16,13 @@ red = (255, 54, 54)
 blue = (35, 0, 255)
 green = (0, 213, 65)
 yellow = (255, 195, 0)
+slot = 0
 
 class RGB(Color):
     def hex_format(self):
         return '#{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue)
+
+slots_colors = [RGB("gray")]*4
 
 class Game():
 
@@ -61,7 +64,7 @@ class RGB(Color):
     def hex_format(self):
         return '#{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue)
 
-def main():
+def main(slot):
     gameExit = False
     while not gameExit:
         for event in pygame.event.get(): 
@@ -87,30 +90,11 @@ def main():
         playing_rect.fill(gray)
         window.blit(playing_rect, (50, (50*11)+130))
 
-<<<<<<< HEAD
-        slots_pos = []
-        for y in range(1,5):
-            x = (length*y/5)+50
+        # slots_colors = [RGB("gray")]*4
+        for i in range(0,4):
+            x = (length*(i+1)/5)+50
             y = 705
-            pygame.draw.circle(window, light_gray, (x,y), 20)
-=======
-        choices = pygame.Surface((300,300))
-        choices.fill(white)
-
-
-        # Choices bubble
-        pos = 10
-        for color in COLORS:
-            circle = pygame.Surface((30,30))
-            circle.fill(white)
-            pygame.draw.circle(circle, RGB(color), (circle.get_width()/2,circle.get_height()/2), 15)
-            choices.blit(circle, (pos, 10))
-            pos += 50
-        window.blit(choices, (450, 200))
-        
-
-
->>>>>>> 02db1f1d4f5fca058997a81ce65cb01227236beb
+            pygame.draw.circle(window, slots_colors[i], (x,y), 20)
 
         choices_pos = []
         for i in range(len(COLORS)):
@@ -126,10 +110,13 @@ def main():
                 matching_y = (position[1] - 20 <= mouse_pos[1] <= position[1] + 20)
                 if matching_x & matching_y:
                     index = choices_pos.index(position)
-                    print(COLORS[index])
-                pygame.draw.circle(window, light_gray, (x,y), 20)
+                    color = COLORS[index]
+                    slots_colors[slot] = RGB(color)
+                    slot += 1
             
         pygame.display.update()
+        clock = pygame.time.Clock()
+        clock.tick(15)
 
 def menu(surface):
     draw_text('MASTERMIND', TITLE_FONT, (255, 255, 255), surface, (WIDTH/4)+50, 60)
@@ -137,4 +124,4 @@ def menu(surface):
 def game(surface):
     solution = random.sample(colors,4)
 
-main()
+main(slot)
