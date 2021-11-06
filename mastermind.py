@@ -17,9 +17,13 @@ blue = (35, 0, 255)
 green = (0, 213, 65)
 yellow = (255, 195, 0)
 
+
 class RGB(Color):
     def hex_format(self):
         return '#{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue)
+
+colorInit = [RGB('grey')]*4
+indexToChange = 0
 
 class Game():
 
@@ -61,24 +65,37 @@ class RGB(Color):
     def hex_format(self):
         return '#{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue)
 
-def main():
-    gameExit = False
-    while not gameExit:
-        for event in pygame.event.get(): 
-            if event.type == QUIT:
-                gameExit = True
-        menu(window)
 
-        for i in range(1,11):
+class Game():
+    def __init__(self):
+        self.line = [[RGB('red')]*4]*10
+        self.linePlayer = [RGB('grey')]*4
+        self.elementPlayerPosition = 0
+        self.linePlayerPosition = 0
+
+    def changeLinePlayer(self, color):
+        if self.position < 4:
+            self.linePlayer[self.elementPlayerPosition] = RGB(color)
+            self.createColor()
+            self.elementPlayerPosition += 1
+
+    def createColor(self):
+        for idx, y in enumerate(range(1,5)):
+            x = (300*y/5)+50
+            y = 705
+            pygame.draw.circle(window, self.linePlayer[idx], (x,y), 20)
+
+    def createLine(self):
+        for i, val in enumerate(self.line):
             length = 300
             rect = pygame.Surface((length,40))
             #rect.fill(red)
             pygame.draw.rect(rect, gray, rect.get_rect(), border_radius = 25)
 
-            for y in range(1,5):
+            for y, valArray in enumerate(val):
                 circle = pygame.Surface((30,30))
                 circle.fill(gray)
-                pygame.draw.circle(circle, red, (circle.get_width()/2,circle.get_height()/2), 15)
+                pygame.draw.circle(circle, valArray, (circle.get_width()/2,circle.get_height()/2), 15)
                 rect.blit(circle, (10+(50*y),5))
             
             window.blit(rect, (50, (50*i)+130))
@@ -87,30 +104,42 @@ def main():
         playing_rect.fill(gray)
         window.blit(playing_rect, (50, (50*11)+130))
 
-<<<<<<< HEAD
-        slots_pos = []
-        for y in range(1,5):
-            x = (length*y/5)+50
-            y = 705
-            pygame.draw.circle(window, light_gray, (x,y), 20)
-=======
-        choices = pygame.Surface((300,300))
-        choices.fill(white)
+    def changeLinePlayer(self,color):
+
+        print('LAaaAAAAA', color)
+        if self.elementPlayerPosition < 4:
+            self.linePlayer[self.elementPlayerPosition] = RGB(color)
+            self.createColor()
+            self.elementPlayerPosition += 1
+
+    def validate(self):
+        if self.linePlayer != [RGB('grey')]*4:
+            self.line[self.linePlayerPosition] = self.linePlayer
+            self.linePlayer = [RGB('grey')]*4
+            self.line += 1   
 
 
-        # Choices bubble
-        pos = 10
-        for color in COLORS:
-            circle = pygame.Surface((30,30))
-            circle.fill(white)
-            pygame.draw.circle(circle, RGB(color), (circle.get_width()/2,circle.get_height()/2), 15)
-            choices.blit(circle, (pos, 10))
-            pos += 50
-        window.blit(choices, (450, 200))
+def main():
+    gameExit = False
+    game = Game()
+    
         
 
+    # Create button validation
+    smallfont = pygame.font.SysFont('Corbel',35)
+    text = smallfont.render('Validé' , True , RGB('white'))
+    window.blit(text, (600, 600))
 
->>>>>>> 02db1f1d4f5fca058997a81ce65cb01227236beb
+    while not gameExit:
+        for event in pygame.event.get(): 
+            if event.type == QUIT:
+                gameExit = True
+        menu(window)
+        game.createLine()
+
+        slots_pos = []
+
+        game.createColor()
 
         choices_pos = []
         for i in range(len(COLORS)):
@@ -122,14 +151,21 @@ def main():
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             for position in choices_pos:
-                matching_x = (position[0] - 20 <= mouse_pos[0] <= position[0] + 20)
-                matching_y = (position[1] - 20 <= mouse_pos[1] <= position[1] + 20)
-                if matching_x & matching_y:
+                matching_round_x = (position[0] - 20 <= mouse_pos[0] <= position[0] + 20)
+                matching_round_y = (position[1] - 20 <= mouse_pos[1] <= position[1] + 20)
+                if matching_round_x & matching_round_y:
                     index = choices_pos.index(position)
-                    print(COLORS[index])
-                pygame.draw.circle(window, light_gray, (x,y), 20)
-            
+                    print('here', COLORS[index])
+                    game.changeLinePlayer(COLORS[index])
+                matching_text_x = (600 <= mouse_pos[0] <= 650)
+                matching_text_y = (600 <= mouse_pos[1] <= 630)
+                if matching_text_x & matching_text_y:
+                    print('here')
+                    game.validate()
+                    
         pygame.display.update()
+        clock = pygame.time.Clock()
+        clock.tick(10)
 
 def menu(surface):
     draw_text('MASTERMIND', TITLE_FONT, (255, 255, 255), surface, (WIDTH/4)+50, 60)
