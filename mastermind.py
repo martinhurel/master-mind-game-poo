@@ -77,22 +77,23 @@ class Game():
             pygame.draw.circle(window, self.linePlayer[idx], (x,y), 20)
 
     def createLine(self):
-        for i, val in enumerate(self.line):
-            length = 300
-            rect = pygame.Surface((length,40))
-            pygame.draw.rect(rect, gray, rect.get_rect(), border_radius = 25)
+        if self.line <= 9:
+            for i, val in enumerate(self.line):
+                length = 300
+                rect = pygame.Surface((length,40))
+                pygame.draw.rect(rect, gray, rect.get_rect(), border_radius = 25)
 
-            for y, valArray in enumerate(val):
-                circle = pygame.Surface((30,30))
-                circle.fill(gray)
-                pygame.draw.circle(circle, valArray, (circle.get_width()/2,circle.get_height()/2), 15)
-                rect.blit(circle, (60+(50*y),5))
+                for y, valArray in enumerate(val):
+                    circle = pygame.Surface((30,30))
+                    circle.fill(gray)
+                    pygame.draw.circle(circle, valArray, (circle.get_width()/2,circle.get_height()/2), 15)
+                    rect.blit(circle, (60+(50*y),5))
+                
+                window.blit(rect, (50, (50*i)+130))
             
-            window.blit(rect, (50, (50*i)+130))
-        
-        playing_rect = pygame.Surface((length,40))
-        playing_rect.fill(gray)
-        window.blit(playing_rect, (50, (50*11)+130))
+            playing_rect = pygame.Surface((length,40))
+            playing_rect.fill(gray)
+            window.blit(playing_rect, (50, (50*11)+130))
 
     def validate(self):
         if self.linePlayer != [RGB('grey')]*4:
@@ -100,6 +101,21 @@ class Game():
             self.linePlayer = [RGB('grey')]*4
             self.linePlayerPosition += 1
             self.elementPlayerPosition = 0
+    
+    def checkLineValidation(self):
+        # RULE
+        
+        # Si la combinaison présentée est incorrecte :
+
+        # Le joueur qui a élaboré la combinaison secrète utilise les languettes situé sur les côtés du plateau.
+        # Si dans la proposition, un ou plusieurs pions de couleurs sont bien dans la combinaison mais pas à la bonne place, le joueur doit alors tirer la languette blanche selon le nombre.
+        # Si dans la proposition, un ou plusieurs pions de couleurs sont bien dans la combinaison et à la bonne place, le joueur doit alors tirer la languette rouge selon le nombre.
+        # Le joueur devant deviner la combinaison continue ainsi en proposant sur la seconde ligne une autre proposition, en prenant bien entendu en compte les indications des languettes rouges et blanches. Il a droit a 12 propositions pour déchiffrer le code.
+
+        # Si la combinaison est correcte :
+
+        # Le joueur qui a élaboré la combinaison secrète révèle le code et la manche est terminée. Les rôles sont alors inversés et la seconde manche peut ainsi commencer.
+
 
 def main():
     gameExit = False
