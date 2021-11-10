@@ -12,9 +12,9 @@ class RGB(Color):
 class Game:
     def __init__(self):
         # Create all the 10 line
-        self.line = [[RGB('red')]*4]*10
+        self.line = [[RGB('grey')]*4]*10
 
-        self.answerClue = [[RGB('white')]*4]*10
+        self.answerClue = [[(17,65,0)]*4]*10
 
         # Create the line wich the player will modify
         self.linePlayer = [RGB('grey')]*4
@@ -41,19 +41,22 @@ class Game:
         # Create button validation
         pygame.init()
         game_font = pygame.font.Font('mm_font.ttf',100)
-        smallfont = pygame.font.SysFont('Corbel',35)
+        smallfont = pygame.font.SysFont('Corbel',45)
         self.screen.fill((0, 9, 30))
+        image = pygame.image.load("bg-wood.png")
+        self.screen.blit(image, (0,0))
         self.createLine()
         self.createColor()
+        self.text_validate = (55, 730)
         draw_text('MASTERMIND', game_font, (255, 255, 255), self.screen, (800/4)+50, 20)
-        text = smallfont.render('Validé' , True , RGB('white'))
-        self.screen.blit(text, (175, 740))
+        text_validate = smallfont.render('Validé' , True , RGB('white'))
+        self.screen.blit(text_validate, self.text_validate)
         
         self.choices_pos = []
         for i in range(len(COLORS)):
-            x = (50*i)+400
-            y = 700
-            pygame.draw.circle(self.screen, RGB(COLORS[i]), (x,y),20)
+            x = (40*i)+530
+            y = 740
+            pygame.draw.circle(self.screen, RGB(COLORS[i]), (x,y),15)
             self.choices_pos.append((x,y))
         pygame.display.update()
 
@@ -64,8 +67,8 @@ class Game:
             if matching_round_x & matching_round_y:
                 index = self.choices_pos.index(position)
                 self.changeLinePlayer(COLORS[index])
-            matching_text_x = (175 <= mouse_pos[0] <= 225)
-            matching_text_y = (740 <= mouse_pos[1] <= 770)
+            matching_text_x = (self.text_validate[0] <= mouse_pos[0] <= self.text_validate[0] + 50)
+            matching_text_y = (self.text_validate[1] <= mouse_pos[1] <= self.text_validate[1] + 50)
             if matching_text_x & matching_text_y:
                 self.validate()
 
@@ -86,35 +89,25 @@ class Game:
 
     def createColor(self):
         for idx, y in enumerate(range(1,5)):
-            x = (300*y/5)+50
-            y = 705
-            pygame.draw.circle(self.screen, self.linePlayer[idx], (x,y), 20)
+            x = 212 + (77*(y-1))
+            y = 740
+            pygame.draw.circle(self.screen, self.linePlayer[idx], (x,y), 13)
 
     def createLine(self):
         if self.linePlayerPosition <= 9:
             for i, val in enumerate(self.line):
                 length = 300
-                rect = pygame.Surface((length,40))
+                #rect = pygame.Surface((length,40))
                 rectAnswer = pygame.Surface((length,40))
                 
-                # Answer rectangle
-                pygame.draw.rect(rect, RGB('grey'), rect.get_rect(), border_radius = 25)
-
                 # Clue rectangle
                 pygame.draw.rect(rectAnswer, RGB('white'), rectAnswer.get_rect())
 
                 for y, valArray in enumerate(val):
                     # Answer Space
-                    self.createCircle(rect, valArray, 'grey', 30, 30, 60+(50*y),5)
+                    self.createCircle(self.screen, valArray, 'white', 35, 35, 203+(75*y),(165+(53*i)))
                     # Clue Space
-                    self.createCircle(rectAnswer, self.answerClue[len(self.answerClue) - (i+1)][y], 'white', 30, 30, 60+(50*y),5)
-                
-                self.screen.blit(rect, (50, (50*i)+130))
-                self.screen.blit(rectAnswer, (length + 70, (50*i)+130))
-            
-            playing_rect = pygame.Surface((length,47))
-            playing_rect.fill(RGB('white'))
-            self.screen.blit(playing_rect, (50, (50*11)+130))
+                    self.createCircle(self.screen, self.answerClue[len(self.answerClue) - (i+1)][y], 'white', 14, 14, 520+(20*y),(175+(53*i)))
 
     def createCircle(self, container, color, fillColor, width, height, x, y):
         circle = pygame.Surface((width,height))
