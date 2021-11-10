@@ -2,39 +2,14 @@ import pygame
 from pygame.locals import *
 import random
 from utils import draw_text
+import time
 
-pygame.init()
-
-WIDTH, HEIGHT = 800, 800
-TITLE_FONT = pygame.font.Font('mm_font.ttf',100)
 COLORS = ['blue', 'red', 'green', 'yellow', 'purple', 'orange', 'pink']
-
-class Guess():
-    
-    def __init__(self, guess):
-        self.guess = guess
-
-    def compare(self, game):
-        right_place = 0
-        right_color = 0
-        game.guesses += 1
-        for i in self.guess:
-            if i == game.solution[self.guess.index(i)]:
-                right_place += 1
-            elif i in game.solution:
-                right_color += 1
-        return right_place, right_color
-
-window = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption('Mastermind') # Window name
-window.fill((0, 9, 30))
 
 class RGB(Color):
     def hex_format(self):
         return '#{:02X}{:02X}{:02X}'.format(self.red,self.green,self.blue)
-
-
-class Game():
+class Game:
     def __init__(self):
         # Create all the 10 line
         self.line = [[RGB('red')]*4]*10
@@ -54,9 +29,48 @@ class Game():
 
         self.finish = False
 
+        self.winning = False
+
+        self.screen = ''
+
+        self.choices_pos = []
+
+        self.name = ''
+
+    def update(self):
+        # Create button validation
+        pygame.init()
+        game_font = pygame.font.Font('mm_font.ttf',100)
+        smallfont = pygame.font.SysFont('Corbel',35)
+        self.screen.fill((0, 9, 30))
+        self.createLine()
+        self.createColor()
+        draw_text('MASTERMIND', game_font, (255, 255, 255), self.screen, (800/4)+50, 20)
+        text = smallfont.render('Validé' , True , RGB('white'))
+        self.screen.blit(text, (175, 740))
+        
+        self.choices_pos = []
+        for i in range(len(COLORS)):
+            x = (50*i)+400
+            y = 700
+            pygame.draw.circle(self.screen, RGB(COLORS[i]), (x,y),20)
+            self.choices_pos.append((x,y))
+        pygame.display.update()
+
+    def handleGameEvent(self, mouse_pos, event):
+        for position in self.choices_pos:
+            matching_round_x = (position[0] - 20 <= mouse_pos[0] <= position[0] + 20)
+            matching_round_y = (position[1] - 20 <= mouse_pos[1] <= position[1] + 20)
+            if matching_round_x & matching_round_y:
+                index = self.choices_pos.index(position)
+                self.changeLinePlayer(COLORS[index])
+            matching_text_x = (175 <= mouse_pos[0] <= 225)
+            matching_text_y = (740 <= mouse_pos[1] <= 770)
+            if matching_text_x & matching_text_y:
+                self.validate()
+
     def create_answer(self):
         # Pick 4 random number between 0 and 3 (compris)
-
         answer = []
 
         for i in range(0,4):
@@ -74,7 +88,7 @@ class Game():
         for idx, y in enumerate(range(1,5)):
             x = (300*y/5)+50
             y = 705
-            pygame.draw.circle(window, self.linePlayer[idx], (x,y), 20)
+            pygame.draw.circle(self.screen, self.linePlayer[idx], (x,y), 20)
 
     def createLine(self):
         if self.linePlayerPosition <= 9:
@@ -95,12 +109,12 @@ class Game():
                     # Clue Space
                     self.createCircle(rectAnswer, self.answerClue[len(self.answerClue) - (i+1)][y], 'white', 30, 30, 60+(50*y),5)
                 
-                window.blit(rect, (50, (50*i)+130))
-                window.blit(rectAnswer, (length + 70, (50*i)+130))
+                self.screen.blit(rect, (50, (50*i)+130))
+                self.screen.blit(rectAnswer, (length + 70, (50*i)+130))
             
             playing_rect = pygame.Surface((length,47))
             playing_rect.fill(RGB('white'))
-            window.blit(playing_rect, (50, (50*11)+130))
+            self.screen.blit(playing_rect, (50, (50*11)+130))
 
     def createCircle(self, container, color, fillColor, width, height, x, y):
         circle = pygame.Surface((width,height))
@@ -131,57 +145,104 @@ class Game():
         self.answerClue[self.linePlayerPosition - 1] = clue
 
         if clue == [RGB('red')]*4:
-            self.win()
+            self.endGame(True)
 
-    def win(self):
-        smallfont = pygame.font.SysFont('Corbel',35)
-        text = smallfont.render('Bravo Marcel tu as gagné' , True , RGB('white'))
-        text2 = smallfont.render('Ton score est ' +  str(10 - self.linePlayerPosition), True , RGB('white'))
-        window.blit(text, (175, 740))
-        window.blit(text2, (175, 800))
+    def endGame(self, winning):
+        self.winning = True
+        time.sleep(0.5)
         self.finish = True
 
-def main():
-    gameExit = False
-    game = Game()
+class Finish:
+    def __init__(self, winning):
+        self.finish = False
+        self.winning = winning
+        self.screen = ''
+        self.name = ''
+
+    def update(self):
+        pygame.init()
+        game_font = pygame.font.Font('mm_font.ttf',100)
+        smallfont = pygame.font.SysFont('Corbel',35)
+        self.screen.fill((0, 9, 30))
+        draw_text('MASTERMIND', game_font, (255, 255, 255), self.screen, (800/4)+50, 20)
+        draw_text('Bravo '+ self.name + ' tu as gagné', smallfont, (255, 255, 255), self.screen, 230, 250)
+        pygame.display.update()
+
+class Menu:
+    def __init__(self):
+        self.finish = False
+        self.screen = ''
+        self.text = ''
+
+    def update(self):
+        pygame.init()
+        game_font = pygame.font.Font('mm_font.ttf',100)
+        smallfont = pygame.font.SysFont('Corbel',35)
+        self.screen.fill((0, 9, 30))
         
-    # Create button validation
-    smallfont = pygame.font.SysFont('Corbel',35)
-    text = smallfont.render('Validé' , True , RGB('white'))
-    window.blit(text, (175, 740))
+        # Rectangle Input Name
+        rect_text = pygame.Surface((450,40))
+        pygame.draw.rect(rect_text, RGB('white'), rect_text.get_rect())
+        self.screen.blit(rect_text, (180, 290))
 
-    while not gameExit:
-        for event in pygame.event.get(): 
-            if event.type == QUIT:
-                gameExit = True
-        draw_text('MASTERMIND', TITLE_FONT, (255, 255, 255), window, (WIDTH/4)+50, 20)
+        # Rectangle boutton Lets play
+        rect_play = pygame.Surface((200,40))
+        pygame.draw.rect(rect_play, RGB('red'), rect_play.get_rect())
+        self.screen.blit(rect_play, (300, 400))
 
-        if game.finish == False:
-            game.createLine()   
-            game.createColor()
+        draw_text('MASTERMIND', game_font, (255, 255, 255), self.screen, 250, 20)
+        draw_text('Let\'s play', smallfont, (255, 255, 255), self.screen, 350, 407)
+        draw_text('Rentrez votre nom', smallfont, (255, 255, 255), self.screen, 300, 250)
+        draw_text(self.text, smallfont, (RGB('black')), self.screen, 190, 300)
 
-            choices_pos = []
-            for i in range(len(COLORS)):
-                x = (50*i)+400
-                y = 700
-                pygame.draw.circle(window, RGB(COLORS[i]), (x,y),20)
-                choices_pos.append((x,y))
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                for position in choices_pos:
-                    matching_round_x = (position[0] - 20 <= mouse_pos[0] <= position[0] + 20)
-                    matching_round_y = (position[1] - 20 <= mouse_pos[1] <= position[1] + 20)
-                    if matching_round_x & matching_round_y:
-                        index = choices_pos.index(position)
-                        game.changeLinePlayer(COLORS[index])
-                    matching_text_x = (175 <= mouse_pos[0] <= 225)
-                    matching_text_y = (740 <= mouse_pos[1] <= 770)
-                    if matching_text_x & matching_text_y:
-                        game.validate()
-                        
-            pygame.display.update()
-            clock = pygame.time.Clock()
-            clock.tick(10)
+        pygame.display.update()      
 
-main()
+    def handleGameEvent(self, mouse_pos, event):
+        game_font = pygame.font.Font('mm_font.ttf',100)
+        smallfont = pygame.font.SysFont('Corbel',35)
+        matching_round_x = (350 - 50 <= mouse_pos[0] <= 350 + 50)
+        matching_round_y = (407 - 40 <= mouse_pos[1] <= 407 + 40)
+        input_active = True
+        if matching_round_x & matching_round_y:
+            self.finish = True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                self.text =  self.text[:-1]
+            else:
+                self.text += event.unicode
+        self.screen.fill(0)
+        
+        pygame.display.flip()
+
+class Screen:
+    def __init__(self, game):
+        self.running = True
+        self.clock = pygame.time.Clock()
+        game.screen = pygame.display.set_mode((800,800))
+        self.game = game
+
+    def handling_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
+                self.game.handleGameEvent(pygame.mouse.get_pos(), event)
+    
+    def run(self):
+        while self.game.finish == False:
+            self.handling_events()
+            self.game.update()
+            self.clock.tick(60)
+
+menu = Menu()
+screenMenu = Screen(menu)
+screenMenu.run()
+game = Game()
+game.name = menu.text
+screen = Screen(game)
+screen.run()
+finish = Finish(True)
+finish.name = menu.text
+endGame = Screen(finish)
+endGame.run()
