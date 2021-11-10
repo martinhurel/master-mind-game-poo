@@ -13,28 +13,18 @@ class Game:
     def __init__(self):
         # Create all the 10 line
         self.line = [[RGB('grey')]*4]*10
-
         self.answerClue = [[(17,65,0)]*4]*10
-
         # Create the line wich the player will modify
         self.linePlayer = [RGB('grey')]*4
-
         # Element in linePlayer that the player will modify
         self.elementPlayerPosition = 0
-
         # Line number that has been validate
         self.linePlayerPosition = 0
-
         self.answer = self.create_answer()
-
         self.finish = False
-
         self.winning = False
-
         self.screen = ''
-
         self.choices_pos = []
-
         self.name = ''
 
     def update(self):
@@ -67,8 +57,8 @@ class Game:
             if matching_round_x & matching_round_y:
                 index = self.choices_pos.index(position)
                 self.changeLinePlayer(COLORS[index])
-            matching_text_x = (self.text_validate[0] <= mouse_pos[0] <= self.text_validate[0] + 50)
-            matching_text_y = (self.text_validate[1] <= mouse_pos[1] <= self.text_validate[1] + 50)
+            matching_text_x = (self.text_validate[0] <= mouse_pos[0] <= self.text_validate[0] + 100)
+            matching_text_y = (self.text_validate[1] <= mouse_pos[1] <= self.text_validate[1] + 60)
             if matching_text_x & matching_text_y:
                 self.validate()
 
@@ -77,7 +67,8 @@ class Game:
         answer = []
 
         for i in range(0,4):
-            answer.append(RGB(COLORS[i]))
+            rand = random.randint(0, len(COLORS))	
+            answer.append(RGB(COLORS[rand]))
 
         return answer
 
@@ -123,6 +114,8 @@ class Game:
             self.elementPlayerPosition = 0
             self.checkLineValidation()
             self.linePlayer = [RGB('grey')]*4
+        if self.linePlayerPosition >= 10:
+            self.endGame(False)
 
     
     def checkLineValidation(self):    
@@ -141,7 +134,7 @@ class Game:
             self.endGame(True)
 
     def endGame(self, winning):
-        self.winning = True
+        self.winning = winning
         time.sleep(0.5)
         self.finish = True
 
@@ -158,7 +151,10 @@ class Finish:
         smallfont = pygame.font.SysFont('Corbel',35)
         self.screen.fill((0, 9, 30))
         draw_text('MASTERMIND', game_font, (255, 255, 255), self.screen, (800/4)+50, 20)
-        draw_text('Bravo '+ self.name + ' tu as gagné', smallfont, (255, 255, 255), self.screen, 230, 250)
+        if self.winning == True:
+            draw_text('Bravo '+ self.name + ' tu as gagné', smallfont, (255, 255, 255), self.screen, 230, 250)
+        else:
+            draw_text('Dommage '+ self.name + ' tu as perdu', smallfont, (255, 255, 255), self.screen, 230, 250)
         pygame.display.update()
 
 class Menu:
@@ -194,7 +190,7 @@ class Menu:
     def handleGameEvent(self, mouse_pos, event):
         game_font = pygame.font.Font('mm_font.ttf',100)
         smallfont = pygame.font.SysFont('Corbel',35)
-        matching_round_x = (350 - 50 <= mouse_pos[0] <= 350 + 50)
+        matching_round_x = (350 - 50 <= mouse_pos[0] <= 350 + 100)
         matching_round_y = (407 - 40 <= mouse_pos[1] <= 407 + 40)
         input_active = True
         if matching_round_x & matching_round_y:
@@ -235,7 +231,8 @@ game = Game()
 game.name = menu.text
 screen = Screen(game)
 screen.run()
-finish = Finish(True)
+hasWin = game.winning
+finish = Finish(hasWin)
 finish.name = menu.text
 endGame = Screen(finish)
 endGame.run()
